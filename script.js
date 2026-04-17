@@ -1,3 +1,9 @@
+const TOTAL_DEVICES = 12;
+const GAME_DURATION = 120;
+const LOSS_THRESHOLD = 7;
+const ATTACK_INTERVAL_MS = 7000;
+const REACTION_WINDOW_MS = 5200;
+
 const devices = [
   { id: 0, name: "ROUTER", type: "router", state: "normal", mfa: false, lockout: false, isolated: false },
   { id: 1, name: "SWITCH", type: "switch", state: "normal", mfa: false, lockout: false, isolated: false },
@@ -8,12 +14,14 @@ const devices = [
   { id: 6, name: "PC 3", type: "endpoint", state: "normal", mfa: false, lockout: false, isolated: false },
   { id: 7, name: "PC 4", type: "endpoint", state: "normal", mfa: false, lockout: false, isolated: false },
   { id: 8, name: "PC 5", type: "endpoint", state: "normal", mfa: false, lockout: false, isolated: false },
-  { id: 9, name: "PC 6", type: "endpoint", state: "normal", mfa: false, lockout: false, isolated: false }
+  { id: 9, name: "PC 6", type: "endpoint", state: "normal", mfa: false, lockout: false, isolated: false },
+  { id: 10, name: "PC 7", type: "endpoint", state: "normal", mfa: false, lockout: false, isolated: false },
+  { id: 11, name: "PC 8", type: "endpoint", state: "normal", mfa: false, lockout: false, isolated: false }
 ];
 
 const adjacency = {
   0: [1],
-  1: [0, 2, 3, 4, 5, 6, 7, 8, 9],
+  1: [0,2,3,4,5,6,7,8,9,10,11],
   2: [1],
   3: [1],
   4: [1],
@@ -21,17 +29,20 @@ const adjacency = {
   6: [1],
   7: [1],
   8: [1],
-  9: [1]
+  9: [1],
+  10: [1],
+  11: [1]
 };
 
 let gameStarted = false;
 let gameOver = false;
-let elapsedSeconds = 0;
+let timeRemaining = GAME_DURATION;
 let timerInterval = null;
 let attackInterval = null;
 let currentTarget = null;
 let selectedDeviceId = null;
-let spreadlessRounds = 0;
+let reactionTimeout = null;
+let attackContained = false;
 
 const startBtn = document.getElementById("startBtn");
 const introCard = document.getElementById("introCard");
@@ -82,11 +93,19 @@ function addLog(text, type = "") {
 
 function updateHud() {
   const breached = devices.filter(d => d.state === "breached").length;
-  const safe = 10 - breached;
+  const safe = TOTAL_DEVICES - breached;
 
-  safeBox.textContent = `SAFE: ${safe} / 10`;
-  breachedBox.textContent = `BREACHED: ${breached} / 10`;
-  timerBox.textContent = `TIME: ${formatTime(elapsedSeconds)}`;
+  safeBox.textContent = `SAFE: ${safe} / ${TOTAL_DEVICES}`;
+  breachedBox.textContent = `BREACHED: ${breached} / ${TOTAL_DEVICES}`;
+  timerBox.textContent = `TIME: ${formatTime(timeRemaining)}`;
+
+  if (timeRemaining <= 20) {
+    timerBox.style.color = "#ff3b6b";
+  } else if (timeRemaining <= 60) {
+    timerBox.style.color = "#ffd44d";
+  } else {
+    timerBox.style.color = "#ffd44d";
+  }
 
   if (gameOver) return;
 
@@ -94,6 +113,8 @@ function updateHud() {
     statusBox.textContent = "STATUS: STANDBY";
   } else if (currentTarget) {
     statusBox.textContent = "STATUS: ACTIVE BRUTE FORCE";
+  } else if (attackContained) {
+    statusBox.textContent = "STATUS: CONTAINMENT HOLDING";
   } else {
     statusBox.textContent = "STATUS: SCANNING NETWORK";
   }
@@ -167,8 +188,16 @@ function getSelectedDevice() {
 
 function startTimer() {
   timerInterval = setInterval(() => {
-    elapsedSeconds += 1;
+    if (gameOver) return;
+
+    timeRemaining -= 1;
     updateHud();
+
+    if (timeRemaining <= 0) {
+      timeRemaining = 0;
+      updateHud();
+      winGame();
+    }
   }, 1000);
 }
 
@@ -199,40 +228,50 @@ function chooseTarget() {
   return candidates[Math.floor(Math.random() * candidates.length)];
 }
 
+function assessContainment() {
+  const candidates = getCandidateTargets();
+  attackContained = candidates.length === 0;
+  return attackContained;
+}
+
 function attackCycle() {
   if (gameOver || !gameStarted) return;
 
   currentTarget = chooseTarget();
 
   if (!currentTarget) {
-    winGame();
+    attackContained = true;
+    attackReadout.textContent = "ATTACKER TARGET: NO PATH AVAILABLE";
+    renderDevices();
     return;
   }
 
+  attackContained = false;
   attackReadout.textContent = `ATTACKER TARGET: ${currentTarget.name}`;
   renderDevices();
 
   addLog(`Brute force detected against ${currentTarget.name}.`, "warn");
 
-  let breachChance = 0.78;
-
-  if (currentTarget.lockout) breachChance = 0.04;
-  if (currentTarget.mfa) breachChance -= 0.38;
-  if (currentTarget.isolated) breachChance = 0;
-
-  breachChance = Math.max(0, breachChance);
-
-  setTimeout(() => {
+  reactionTimeout = setTimeout(() => {
     if (gameOver || !currentTarget) return;
 
-    let spreadSucceeded = false;
+    let breachChance = 0.78;
+
+    if (currentTarget.lockout) breachChance = 0.05;
+
+    if (currentTarget.type === "server" || currentTarget.type === "endpoint") {
+      if (currentTarget.mfa) breachChance -= 0.35;
+    }
+
+    if (currentTarget.isolated) breachChance = 0;
+
+    breachChance = Math.max(0, breachChance);
 
     if (currentTarget.isolated) {
       addLog(`${currentTarget.name} was isolated. Attack blocked.`, "good");
       spawnShieldBurst(currentTarget.id);
     } else if (Math.random() < breachChance) {
       currentTarget.state = "breached";
-      spreadSucceeded = true;
       addLog(`${currentTarget.name} has been breached.`, "bad");
       spawnSkullBurst(currentTarget.id);
     } else {
@@ -240,31 +279,23 @@ function attackCycle() {
       spawnDefenceBurst(currentTarget.id);
     }
 
-    if (spreadSucceeded) {
-      spreadlessRounds = 0;
-    } else {
-      spreadlessRounds += 1;
-    }
-
     currentTarget = null;
-    attackReadout.textContent = "ATTACKER TARGET: SCANNING";
+    assessContainment();
+    attackReadout.textContent = attackContained ? "ATTACKER TARGET: CONTAINED" : "ATTACKER TARGET: SCANNING";
     renderDevices();
     checkGameState();
-  }, 3200);
+  }, REACTION_WINDOW_MS);
 }
 
 function checkGameState() {
   const breached = devices.filter(d => d.state === "breached").length;
 
-  if (breached >= 6) {
+  if (breached >= LOSS_THRESHOLD) {
     loseGame();
     return;
   }
 
-  const candidates = getCandidateTargets();
-  if (candidates.length === 0 || spreadlessRounds >= 3) {
-    winGame();
-  }
+  assessContainment();
 }
 
 function loseGame() {
@@ -272,6 +303,7 @@ function loseGame() {
   gameOver = true;
   clearInterval(timerInterval);
   clearInterval(attackInterval);
+  clearTimeout(reactionTimeout);
 
   statusBox.textContent = "STATUS: NETWORK LOST";
   addLog("More than half the estate has been breached.", "bad");
@@ -288,15 +320,16 @@ function winGame() {
   gameOver = true;
   clearInterval(timerInterval);
   clearInterval(attackInterval);
+  clearTimeout(reactionTimeout);
 
   statusBox.textContent = "STATUS: ATTACK LOCKED OUT";
-  addLog("The attack can no longer spread across the estate.", "good");
+  addLog("You held the estate until time expired.", "good");
 
   const breached = devices.filter(d => d.state === "breached").length;
-  const safe = 10 - breached;
+  const safe = TOTAL_DEVICES - breached;
 
   victoryScore.textContent = `${safe} SAFE · ${breached} BREACHED`;
-  victoryTime.textContent = `TIME ${formatTime(elapsedSeconds)}`;
+  victoryTime.textContent = `TIME 00:00`;
 
   setTimeout(() => {
     victoryOverlay.classList.add("active");
@@ -315,7 +348,7 @@ function startGame() {
   renderDevices();
   startTimer();
 
-  attackInterval = setInterval(attackCycle, 6000);
+  attackInterval = setInterval(attackCycle, ATTACK_INTERVAL_MS);
   setTimeout(attackCycle, 1800);
 }
 
@@ -325,7 +358,7 @@ function useLockout() {
   if (!device || device.state === "breached") return;
 
   device.lockout = true;
-  addLog(`Account lockout enabled on ${device.name}.`, "good");
+  addLog(`Lockout enabled on ${device.name}.`, "good");
   spawnDefenceBurst(device.id);
   renderDevices();
 }
@@ -334,6 +367,11 @@ function useMfa() {
   if (!gameStarted || gameOver) return;
   const device = getSelectedDevice();
   if (!device || device.state === "breached") return;
+
+  if (device.type !== "server" && device.type !== "endpoint") {
+    addLog(`MFA is not available on ${device.name} in this simulation.`, "warn");
+    return;
+  }
 
   device.mfa = true;
   addLog(`MFA applied to ${device.name}.`, "good");
