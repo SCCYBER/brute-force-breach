@@ -42,11 +42,13 @@
         <br>
         MFA = useful on endpoints and servers only
         <br>
-        Isolate = removes a device from the estate to stop spread
+        Isolation = removes a device from the estate to stop spread
+        <br><br>
+        The switch can now come under attack at the same time as another device in rare pressure events.
         <br><br>
         Win by surviving the full 2 minutes while stopping the attackers from spreading across the estate.
         <br>
-        Lose if more than half the estate is breached.
+        Lose if 7 or more devices are breached.
       </div>
       <button class="action-btn primary-btn" id="startBtn">START DEFENCE</button>
     </section>
@@ -176,9 +178,11 @@
           <br><br>
           MFA is only valid on servers and PCs.
           <br>
-          Lockout works across all devices in this simulation.
+          Lockout works across all devices.
           <br>
-          Isolation works on all devices.
+          Isolation works on all devices except the switch.
+          <br>
+          The switch may be attacked simultaneously with another random device.
         </div>
       </div>
 
@@ -192,18 +196,9 @@
   <div class="breach-overlay" id="breachOverlay">
     <div class="breach-warning">NETWORK COMPROMISED</div>
     <div class="giant-ransom-skull" id="giantRansomSkull">
-      <div class="skull-row"></div>
-      <div class="skull-row"></div>
-      <div class="skull-row"></div>
-      <div class="skull-row"></div>
-      <div class="skull-row"></div>
-      <div class="skull-row"></div>
-      <div class="skull-row"></div>
-      <div class="skull-row"></div>
-      <div class="skull-row"></div>
-      <div class="skull-row"></div>
-      <div class="skull-row"></div>
-      <div class="skull-row"></div>
+      <div class="skull-row"></div><div class="skull-row"></div><div class="skull-row"></div><div class="skull-row"></div>
+      <div class="skull-row"></div><div class="skull-row"></div><div class="skull-row"></div><div class="skull-row"></div>
+      <div class="skull-row"></div><div class="skull-row"></div><div class="skull-row"></div><div class="skull-row"></div>
     </div>
     <div class="breach-subtext" id="breachSubtext">MORE THAN HALF THE ESTATE WAS BREACHED</div>
     <button class="overlay-btn" onclick="location.reload()">PLAY AGAIN</button>
