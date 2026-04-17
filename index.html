@@ -20,31 +20,33 @@
     <img src="logo.png" alt="SCCYBER logo" class="logo">
 
     <h1 class="title">BRUTE FORCE LOCKDOWN</h1>
-    <p class="subtitle">Tap the device under attack. Defend the estate before the breach spreads.</p>
+    <p class="subtitle">Tap the attacked device. Contain the spread before the estate falls.</p>
 
     <section class="hud">
       <div class="hud-box" id="statusBox">STATUS: STANDBY</div>
-      <div class="hud-box" id="timerBox">TIME: 00:00</div>
-      <div class="hud-box" id="safeBox">SAFE: 10 / 10</div>
-      <div class="hud-box" id="breachedBox">BREACHED: 0 / 10</div>
+      <div class="hud-box timer-critical" id="timerBox">TIME: 02:00</div>
+      <div class="hud-box" id="safeBox">SAFE: 12 / 12</div>
+      <div class="hud-box" id="breachedBox">BREACHED: 0 / 12</div>
     </section>
 
     <section class="intro-card" id="introCard">
       <div class="intro-title">MISSION BRIEFING</div>
       <div class="intro-text">
-        A brute force attack has started against your on prem network.
+        A brute force attack is underway against your on prem network.
         <br><br>
-        There are 10 visible devices in the estate.
+        There are 12 devices in the estate.
         <br><br>
-        Tap or click a device to select it, then use one of the actions below.
+        Tap or click a device to select it, then choose a defence action.
         <br><br>
-        • Lockout = blocks brute force attempts
-        <br>• MFA = hardens the device
-        <br>• Isolate = cuts it off from the estate
-        <br><br>
-        Win by stopping the attackers from moving across the estate.
+        Lockout = strongest defence against brute force
         <br>
-        Lose if more than half the devices are affected.
+        MFA = useful on endpoints and servers only
+        <br>
+        Isolate = removes a device from the estate to stop spread
+        <br><br>
+        Win by surviving the full 2 minutes while stopping the attackers from spreading across the estate.
+        <br>
+        Lose if more than half the estate is breached.
       </div>
       <button class="action-btn primary-btn" id="startBtn">START DEFENCE</button>
     </section>
@@ -56,23 +58,26 @@
       </div>
 
       <div class="network-board" id="networkBoard">
-        <svg class="network-lines" viewBox="0 0 1000 620" preserveAspectRatio="none">
-          <line x1="500" y1="110" x2="500" y2="205"></line>
-          <line x1="500" y1="205" x2="500" y2="300"></line>
+        <svg class="network-lines" viewBox="0 0 1000 700" preserveAspectRatio="none">
+          <line x1="500" y1="90" x2="500" y2="175"></line>
+          <line x1="500" y1="175" x2="500" y2="265"></line>
 
-          <line x1="500" y1="205" x2="260" y2="205"></line>
-          <line x1="500" y1="205" x2="740" y2="205"></line>
+          <line x1="500" y1="175" x2="270" y2="175"></line>
+          <line x1="500" y1="175" x2="730" y2="175"></line>
 
-          <line x1="260" y1="205" x2="160" y2="315"></line>
-          <line x1="260" y1="205" x2="260" y2="315"></line>
-          <line x1="260" y1="205" x2="360" y2="315"></line>
+          <line x1="270" y1="175" x2="150" y2="295"></line>
+          <line x1="270" y1="175" x2="270" y2="295"></line>
+          <line x1="270" y1="175" x2="390" y2="295"></line>
 
-          <line x1="740" y1="205" x2="640" y2="315"></line>
-          <line x1="740" y1="205" x2="740" y2="315"></line>
-          <line x1="740" y1="205" x2="840" y2="315"></line>
+          <line x1="730" y1="175" x2="610" y2="295"></line>
+          <line x1="730" y1="175" x2="730" y2="295"></line>
+          <line x1="730" y1="175" x2="850" y2="295"></line>
 
-          <line x1="500" y1="300" x2="390" y2="455"></line>
-          <line x1="500" y1="300" x2="610" y2="455"></line>
+          <line x1="500" y1="265" x2="230" y2="500"></line>
+          <line x1="500" y1="265" x2="380" y2="500"></line>
+          <line x1="500" y1="265" x2="500" y2="500"></line>
+          <line x1="500" y1="265" x2="620" y2="500"></line>
+          <line x1="500" y1="265" x2="770" y2="500"></line>
         </svg>
 
         <div class="device router" id="d0" data-id="0">
@@ -134,6 +139,18 @@
           <div class="device-icon">▥</div>
           <div class="device-name">PC 6</div>
         </div>
+
+        <div class="device endpoint" id="d10" data-id="10">
+          <div class="device-art skull-art">☠</div>
+          <div class="device-icon">▥</div>
+          <div class="device-name">PC 7</div>
+        </div>
+
+        <div class="device endpoint" id="d11" data-id="11">
+          <div class="device-art skull-art">☠</div>
+          <div class="device-icon">▥</div>
+          <div class="device-name">PC 8</div>
+        </div>
       </div>
     </section>
 
@@ -153,9 +170,15 @@
       <div class="rules-card">
         <div class="rules-title">WIN / LOSS RULES</div>
         <div class="rules-text">
-          Win by fully containing the attack so it can no longer spread to any new device.
+          Win by surviving the full 2 minutes while stopping the attackers from spreading across the estate.
           <br>
-          Lose when 6 or more devices are breached.
+          Lose when 7 or more devices are breached.
+          <br><br>
+          MFA is only valid on servers and PCs.
+          <br>
+          Lockout works across all devices in this simulation.
+          <br>
+          Isolation works on all devices.
         </div>
       </div>
 
