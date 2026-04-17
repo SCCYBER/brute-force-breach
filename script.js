@@ -30,17 +30,18 @@ let elapsedSeconds = 0;
 let timerInterval = null;
 let attackInterval = null;
 let currentTarget = null;
+let selectedDeviceId = null;
+let spreadlessRounds = 0;
 
 const startBtn = document.getElementById("startBtn");
 const introCard = document.getElementById("introCard");
-const deviceSelect = document.getElementById("deviceSelect");
 const lockoutBtn = document.getElementById("lockoutBtn");
 const mfaBtn = document.getElementById("mfaBtn");
 const isolateBtn = document.getElementById("isolateBtn");
 const attackReadout = document.getElementById("attackReadout");
 const logLines = document.getElementById("logLines");
 const timerBox = document.getElementById("timerBox");
-const secureBox = document.getElementById("secureBox");
+const safeBox = document.getElementById("safeBox");
 const breachedBox = document.getElementById("breachedBox");
 const statusBox = document.getElementById("statusBox");
 const breachOverlay = document.getElementById("breachOverlay");
@@ -48,7 +49,7 @@ const giantRansomSkull = document.getElementById("giantRansomSkull");
 const victoryOverlay = document.getElementById("victoryOverlay");
 const victoryScore = document.getElementById("victoryScore");
 const victoryTime = document.getElementById("victoryTime");
-const gameShell = document.getElementById("gameShell");
+const selectedDeviceName = document.getElementById("selectedDeviceName");
 
 const fxCanvas = document.getElementById("fxCanvas");
 const ctx = fxCanvas.getContext("2d");
@@ -81,35 +82,27 @@ function addLog(text, type = "") {
 
 function updateHud() {
   const breached = devices.filter(d => d.state === "breached").length;
-  const protectedCount = devices.filter(d => d.lockout || d.mfa || d.isolated).length;
+  const safe = 10 - breached;
 
-  secureBox.textContent = `SECURED: ${protectedCount} / 10`;
+  safeBox.textContent = `SAFE: ${safe} / 10`;
   breachedBox.textContent = `BREACHED: ${breached} / 10`;
   timerBox.textContent = `TIME: ${formatTime(elapsedSeconds)}`;
 
   if (gameOver) return;
-  statusBox.textContent = currentTarget === null ? "STATUS: SCANNING NETWORK" : "STATUS: ACTIVE BRUTE FORCE";
-}
 
-function populateSelect() {
-  deviceSelect.innerHTML = "";
-  devices.forEach(device => {
-    const option = document.createElement("option");
-    option.value = device.id;
-    option.textContent = device.name;
-    deviceSelect.appendChild(option);
-  });
-}
-
-function getSelectedDevice() {
-  const id = Number(deviceSelect.value);
-  return devices.find(d => d.id === id);
+  if (!gameStarted) {
+    statusBox.textContent = "STATUS: STANDBY";
+  } else if (currentTarget) {
+    statusBox.textContent = "STATUS: ACTIVE BRUTE FORCE";
+  } else {
+    statusBox.textContent = "STATUS: SCANNING NETWORK";
+  }
 }
 
 function renderDevices() {
   devices.forEach(device => {
     const el = document.getElementById(`d${device.id}`);
-    el.classList.remove("breached", "protected", "targeted", "isolated");
+    el.classList.remove("breached", "protected", "targeted", "isolated", "selected");
 
     let statusText = "NORMAL";
 
@@ -117,22 +110,29 @@ function renderDevices() {
       el.classList.add("breached");
       statusText = "BREACHED";
     } else {
-      if (device.lockout || device.mfa || device.isolated) {
+      const tags = [];
+      if (device.lockout) {
         el.classList.add("protected");
+        tags.push("LOCKOUT");
+      }
+      if (device.mfa) {
+        el.classList.add("protected");
+        tags.push("MFA");
       }
       if (device.isolated) {
+        el.classList.add("protected");
         el.classList.add("isolated");
+        tags.push("ISOLATED");
       }
-
-      const tags = [];
-      if (device.lockout) tags.push("LOCKOUT");
-      if (device.mfa) tags.push("MFA");
-      if (device.isolated) tags.push("ISOLATED");
       statusText = tags.length ? tags.join(" · ") : "NORMAL";
     }
 
-    if (currentTarget !== null && currentTarget.id === device.id && device.state !== "breached") {
+    if (currentTarget && currentTarget.id === device.id && device.state !== "breached") {
       el.classList.add("targeted");
+    }
+
+    if (selectedDeviceId === device.id) {
+      el.classList.add("selected");
     }
 
     let statusEl = el.querySelector(".device-label-status");
@@ -144,7 +144,25 @@ function renderDevices() {
     statusEl.textContent = statusText;
   });
 
+  if (selectedDeviceId === null) {
+    selectedDeviceName.textContent = "NONE";
+  } else {
+    const selected = devices.find(d => d.id === selectedDeviceId);
+    selectedDeviceName.textContent = selected ? selected.name : "NONE";
+  }
+
   updateHud();
+}
+
+function selectDevice(id) {
+  if (gameOver) return;
+  selectedDeviceId = id;
+  renderDevices();
+}
+
+function getSelectedDevice() {
+  if (selectedDeviceId === null) return null;
+  return devices.find(d => d.id === selectedDeviceId);
 }
 
 function startTimer() {
@@ -177,9 +195,7 @@ function getCandidateTargets() {
 
 function chooseTarget() {
   const candidates = getCandidateTargets();
-  if (candidates.length === 0) {
-    return null;
-  }
+  if (candidates.length === 0) return null;
   return candidates[Math.floor(Math.random() * candidates.length)];
 }
 
@@ -196,10 +212,12 @@ function attackCycle() {
   attackReadout.textContent = `ATTACKER TARGET: ${currentTarget.name}`;
   renderDevices();
 
-  let breachChance = 0.75;
+  addLog(`Brute force detected against ${currentTarget.name}.`, "warn");
 
-  if (currentTarget.lockout) breachChance = 0.05;
-  if (currentTarget.mfa) breachChance -= 0.35;
+  let breachChance = 0.78;
+
+  if (currentTarget.lockout) breachChance = 0.04;
+  if (currentTarget.mfa) breachChance -= 0.38;
   if (currentTarget.isolated) breachChance = 0;
 
   breachChance = Math.max(0, breachChance);
@@ -207,34 +225,44 @@ function attackCycle() {
   setTimeout(() => {
     if (gameOver || !currentTarget) return;
 
+    let spreadSucceeded = false;
+
     if (currentTarget.isolated) {
       addLog(`${currentTarget.name} was isolated. Attack blocked.`, "good");
       spawnShieldBurst(currentTarget.id);
     } else if (Math.random() < breachChance) {
       currentTarget.state = "breached";
+      spreadSucceeded = true;
       addLog(`${currentTarget.name} has been breached.`, "bad");
       spawnSkullBurst(currentTarget.id);
     } else {
-      addLog(`Attack failed against ${currentTarget.name}.`, "warn");
+      addLog(`Attack failed against ${currentTarget.name}.`, "good");
       spawnDefenceBurst(currentTarget.id);
+    }
+
+    if (spreadSucceeded) {
+      spreadlessRounds = 0;
+    } else {
+      spreadlessRounds += 1;
     }
 
     currentTarget = null;
     attackReadout.textContent = "ATTACKER TARGET: SCANNING";
     renderDevices();
     checkGameState();
-  }, 1700);
+  }, 3200);
 }
 
 function checkGameState() {
   const breached = devices.filter(d => d.state === "breached").length;
-  if (breached >= 10) {
+
+  if (breached >= 6) {
     loseGame();
     return;
   }
 
   const candidates = getCandidateTargets();
-  if (candidates.length === 0) {
+  if (candidates.length === 0 || spreadlessRounds >= 3) {
     winGame();
   }
 }
@@ -246,7 +274,7 @@ function loseGame() {
   clearInterval(attackInterval);
 
   statusBox.textContent = "STATUS: NETWORK LOST";
-  addLog("All devices have been breached.", "bad");
+  addLog("More than half the estate has been breached.", "bad");
 
   setTimeout(() => {
     breachOverlay.classList.add("active");
@@ -262,10 +290,12 @@ function winGame() {
   clearInterval(attackInterval);
 
   statusBox.textContent = "STATUS: ATTACK LOCKED OUT";
-  addLog("The attacker has been fully contained.", "good");
+  addLog("The attack can no longer spread across the estate.", "good");
 
-  const safeCount = devices.filter(d => d.state !== "breached").length;
-  victoryScore.textContent = `${safeCount} / 10 DEVICES SAFE`;
+  const breached = devices.filter(d => d.state === "breached").length;
+  const safe = 10 - breached;
+
+  victoryScore.textContent = `${safe} SAFE · ${breached} BREACHED`;
   victoryTime.textContent = `TIME ${formatTime(elapsedSeconds)}`;
 
   setTimeout(() => {
@@ -280,14 +310,13 @@ function startGame() {
   gameStarted = true;
   introCard.style.display = "none";
   addLog("Brute force activity detected on the network.", "bad");
-  addLog("Defence team online. Awaiting first target.", "warn");
+  addLog("Tap a device, then choose a defence action.", "warn");
 
   renderDevices();
-  populateSelect();
   startTimer();
 
-  attackInterval = setInterval(attackCycle, 3200);
-  setTimeout(attackCycle, 1400);
+  attackInterval = setInterval(attackCycle, 6000);
+  setTimeout(attackCycle, 1800);
 }
 
 function useLockout() {
@@ -318,7 +347,7 @@ function useIsolate() {
   if (!device || device.state === "breached") return;
 
   device.isolated = true;
-  addLog(`${device.name} has been isolated from the network.`, "warn");
+  addLog(`${device.name} has been isolated from the estate.`, "warn");
   spawnShieldBurst(device.id);
   renderDevices();
   checkGameState();
@@ -328,6 +357,12 @@ startBtn.addEventListener("click", startGame);
 lockoutBtn.addEventListener("click", useLockout);
 mfaBtn.addEventListener("click", useMfa);
 isolateBtn.addEventListener("click", useIsolate);
+
+devices.forEach(device => {
+  const el = document.getElementById(`d${device.id}`);
+  el.addEventListener("click", () => selectDevice(device.id));
+  el.addEventListener("touchstart", () => selectDevice(device.id), { passive: true });
+});
 
 function getDeviceCenter(id) {
   const el = document.getElementById(`d${id}`);
@@ -349,11 +384,11 @@ function spawnDefenceBurst(id) {
     addParticle(
       p.x,
       p.y,
-      (Math.random() - 0.5) * 4.6,
-      (Math.random() - 0.5) * 4.6,
+      (Math.random() - 0.5) * 4.2,
+      (Math.random() - 0.5) * 4.2,
       Math.random() * 4 + 2,
       colors[Math.floor(Math.random() * colors.length)],
-      32
+      34
     );
   }
 }
@@ -361,15 +396,15 @@ function spawnDefenceBurst(id) {
 function spawnShieldBurst(id) {
   const p = getDeviceCenter(id);
   const colors = ["#59ff9d", "#2cdc78", "#ffffff"];
-  for (let i = 0; i < 32; i++) {
+  for (let i = 0; i < 30; i++) {
     addParticle(
       p.x,
       p.y,
-      (Math.random() - 0.5) * 5.2,
-      (Math.random() - 0.5) * 5.2,
+      (Math.random() - 0.5) * 4.8,
+      (Math.random() - 0.5) * 4.8,
       Math.random() * 5 + 2,
       colors[Math.floor(Math.random() * colors.length)],
-      38
+      40
     );
   }
 }
@@ -381,11 +416,11 @@ function spawnSkullBurst(id) {
     addParticle(
       p.x,
       p.y,
-      (Math.random() - 0.5) * 5.6,
-      (Math.random() - 0.5) * 5.6,
+      (Math.random() - 0.5) * 5.2,
+      (Math.random() - 0.5) * 5.2,
       Math.random() * 5 + 2,
       colors[Math.floor(Math.random() * colors.length)],
-      38
+      42
     );
   }
 }
@@ -419,7 +454,7 @@ function launchVictoryFireworks() {
   ];
 
   bursts.forEach((burst, i) => {
-    setTimeout(() => fireworkBurst(burst[0], burst[1], 130), i * 180);
+    setTimeout(() => fireworkBurst(burst[0], burst[1], 120), i * 180);
   });
 
   setTimeout(() => {
@@ -427,11 +462,11 @@ function launchVictoryFireworks() {
       fireworkBurst(
         Math.random() * window.innerWidth,
         Math.random() * (window.innerHeight * 0.45),
-        110
+        100
       );
-    }, 280);
+    }, 320);
 
-    setTimeout(() => clearInterval(interval), 2400);
+    setTimeout(() => clearInterval(interval), 2500);
   }, 900);
 }
 
@@ -472,6 +507,5 @@ function animateParticles() {
   requestAnimationFrame(animateParticles);
 }
 
-populateSelect();
 renderDevices();
 animateParticles();
