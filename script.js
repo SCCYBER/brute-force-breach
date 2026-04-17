@@ -1,8 +1,9 @@
 const TOTAL_DEVICES = 12;
 const GAME_DURATION = 120;
 const LOSS_THRESHOLD = 7;
-const ATTACK_INTERVAL_MS = 7000;
+const ATTACK_INTERVAL_MS = 7200;
 const REACTION_WINDOW_MS = 5200;
+const SWITCH_DUAL_ATTACK_CHANCE = 0.28;
 
 const devices = [
   { id: 0, name: "ROUTER", type: "router", state: "normal", mfa: false, lockout: false, isolated: false },
@@ -39,7 +40,7 @@ let gameOver = false;
 let timeRemaining = GAME_DURATION;
 let timerInterval = null;
 let attackInterval = null;
-let currentTarget = null;
+let currentTargets = [];
 let selectedDeviceId = null;
 let reactionTimeout = null;
 let attackContained = false;
@@ -86,9 +87,7 @@ function addLog(text, type = "") {
   logLines.prepend(line);
 
   const lines = [...logLines.querySelectorAll(".log-line")];
-  if (lines.length > 8) {
-    lines[lines.length - 1].remove();
-  }
+  if (lines.length > 8) lines[lines.length - 1].remove();
 }
 
 function updateHud() {
@@ -99,31 +98,22 @@ function updateHud() {
   breachedBox.textContent = `BREACHED: ${breached} / ${TOTAL_DEVICES}`;
   timerBox.textContent = `TIME: ${formatTime(timeRemaining)}`;
 
-  if (timeRemaining <= 20) {
-    timerBox.style.color = "#ff3b6b";
-  } else if (timeRemaining <= 60) {
-    timerBox.style.color = "#ffd44d";
-  } else {
-    timerBox.style.color = "#ffd44d";
-  }
+  if (timeRemaining <= 20) timerBox.style.color = "#ff3b6b";
+  else if (timeRemaining <= 60) timerBox.style.color = "#ffd44d";
+  else timerBox.style.color = "#ffd44d";
 
   if (gameOver) return;
 
-  if (!gameStarted) {
-    statusBox.textContent = "STATUS: STANDBY";
-  } else if (currentTarget) {
-    statusBox.textContent = "STATUS: ACTIVE BRUTE FORCE";
-  } else if (attackContained) {
-    statusBox.textContent = "STATUS: CONTAINMENT HOLDING";
-  } else {
-    statusBox.textContent = "STATUS: SCANNING NETWORK";
-  }
+  if (!gameStarted) statusBox.textContent = "STATUS: STANDBY";
+  else if (currentTargets.length) statusBox.textContent = currentTargets.length > 1 ? "STATUS: DUAL PRESSURE EVENT" : "STATUS: ACTIVE BRUTE FORCE";
+  else if (attackContained) statusBox.textContent = "STATUS: CONTAINMENT HOLDING";
+  else statusBox.textContent = "STATUS: SCANNING NETWORK";
 }
 
 function renderDevices() {
   devices.forEach(device => {
     const el = document.getElementById(`d${device.id}`);
-    el.classList.remove("breached", "protected", "targeted", "isolated", "selected");
+    el.classList.remove("breached", "protected", "targeted", "dual-target", "isolated", "selected");
 
     let statusText = "NORMAL";
 
@@ -148,13 +138,13 @@ function renderDevices() {
       statusText = tags.length ? tags.join(" · ") : "NORMAL";
     }
 
-    if (currentTarget && currentTarget.id === device.id && device.state !== "breached") {
+    const isTarget = currentTargets.some(t => t.id === device.id);
+    if (isTarget && device.state !== "breached") {
       el.classList.add("targeted");
+      if (currentTargets.length > 1) el.classList.add("dual-target");
     }
 
-    if (selectedDeviceId === device.id) {
-      el.classList.add("selected");
-    }
+    if (selectedDeviceId === device.id) el.classList.add("selected");
 
     let statusEl = el.querySelector(".device-label-status");
     if (!statusEl) {
@@ -165,9 +155,8 @@ function renderDevices() {
     statusEl.textContent = statusText;
   });
 
-  if (selectedDeviceId === null) {
-    selectedDeviceName.textContent = "NONE";
-  } else {
+  if (selectedDeviceId === null) selectedDeviceName.textContent = "NONE";
+  else {
     const selected = devices.find(d => d.id === selectedDeviceId);
     selectedDeviceName.textContent = selected ? selected.name : "NONE";
   }
@@ -189,10 +178,8 @@ function getSelectedDevice() {
 function startTimer() {
   timerInterval = setInterval(() => {
     if (gameOver) return;
-
     timeRemaining -= 1;
     updateHud();
-
     if (timeRemaining <= 0) {
       timeRemaining = 0;
       updateHud();
@@ -222,10 +209,30 @@ function getCandidateTargets() {
   return devices.filter(d => candidateIds.has(d.id));
 }
 
-function chooseTarget() {
-  const candidates = getCandidateTargets();
-  if (candidates.length === 0) return null;
+function chooseSingleTarget(excludeIds = []) {
+  const candidates = getCandidateTargets().filter(d => !excludeIds.includes(d.id));
+  if (!candidates.length) return null;
   return candidates[Math.floor(Math.random() * candidates.length)];
+}
+
+function chooseAttackTargets() {
+  const first = chooseSingleTarget();
+  if (!first) return [];
+
+  const targets = [first];
+
+  const switchDevice = devices.find(d => d.id === 1);
+  const switchAvailable =
+    switchDevice.state !== "breached" &&
+    !switchDevice.isolated &&
+    !targets.some(t => t.id === 1);
+
+  if (switchAvailable && Math.random() < SWITCH_DUAL_ATTACK_CHANCE) {
+    const second = first.id === 1 ? chooseSingleTarget([1]) : switchDevice;
+    if (second) targets.push(second);
+  }
+
+  return targets;
 }
 
 function assessContainment() {
@@ -237,9 +244,9 @@ function assessContainment() {
 function attackCycle() {
   if (gameOver || !gameStarted) return;
 
-  currentTarget = chooseTarget();
+  currentTargets = chooseAttackTargets();
 
-  if (!currentTarget) {
+  if (!currentTargets.length) {
     attackContained = true;
     attackReadout.textContent = "ATTACKER TARGET: NO PATH AVAILABLE";
     renderDevices();
@@ -247,39 +254,25 @@ function attackCycle() {
   }
 
   attackContained = false;
-  attackReadout.textContent = `ATTACKER TARGET: ${currentTarget.name}`;
+  attackReadout.textContent =
+    currentTargets.length > 1
+      ? `ATTACKER TARGETS: ${currentTargets[0].name} + ${currentTargets[1].name}`
+      : `ATTACKER TARGET: ${currentTargets[0].name}`;
+
+  if (currentTargets.length > 1) {
+    addLog(`Dual pressure event: ${currentTargets[0].name} and ${currentTargets[1].name} are under attack.`, "bad");
+  } else {
+    addLog(`Brute force detected against ${currentTargets[0].name}.`, "warn");
+  }
+
   renderDevices();
 
-  addLog(`Brute force detected against ${currentTarget.name}.`, "warn");
-
   reactionTimeout = setTimeout(() => {
-    if (gameOver || !currentTarget) return;
+    if (gameOver || !currentTargets.length) return;
 
-    let breachChance = 0.78;
+    currentTargets.forEach(target => resolveAttackOnTarget(target));
 
-    if (currentTarget.lockout) breachChance = 0.05;
-
-    if (currentTarget.type === "server" || currentTarget.type === "endpoint") {
-      if (currentTarget.mfa) breachChance -= 0.35;
-    }
-
-    if (currentTarget.isolated) breachChance = 0;
-
-    breachChance = Math.max(0, breachChance);
-
-    if (currentTarget.isolated) {
-      addLog(`${currentTarget.name} was isolated. Attack blocked.`, "good");
-      spawnShieldBurst(currentTarget.id);
-    } else if (Math.random() < breachChance) {
-      currentTarget.state = "breached";
-      addLog(`${currentTarget.name} has been breached.`, "bad");
-      spawnSkullBurst(currentTarget.id);
-    } else {
-      addLog(`Attack failed against ${currentTarget.name}.`, "good");
-      spawnDefenceBurst(currentTarget.id);
-    }
-
-    currentTarget = null;
+    currentTargets = [];
     assessContainment();
     attackReadout.textContent = attackContained ? "ATTACKER TARGET: CONTAINED" : "ATTACKER TARGET: SCANNING";
     renderDevices();
@@ -287,14 +280,40 @@ function attackCycle() {
   }, REACTION_WINDOW_MS);
 }
 
+function resolveAttackOnTarget(target) {
+  if (!target || target.state === "breached") return;
+
+  let breachChance = 0.78;
+
+  if (target.lockout) breachChance = 0.05;
+
+  if ((target.type === "server" || target.type === "endpoint") && target.mfa) {
+    breachChance -= 0.35;
+  }
+
+  if (target.isolated) breachChance = 0;
+
+  breachChance = Math.max(0, breachChance);
+
+  if (target.isolated) {
+    addLog(`${target.name} was isolated. Attack blocked.`, "good");
+    spawnShieldBurst(target.id);
+  } else if (Math.random() < breachChance) {
+    target.state = "breached";
+    addLog(`${target.name} has been breached.`, "bad");
+    spawnSkullBurst(target.id);
+  } else {
+    addLog(`Attack failed against ${target.name}.`, "good");
+    spawnDefenceBurst(target.id);
+  }
+}
+
 function checkGameState() {
   const breached = devices.filter(d => d.state === "breached").length;
-
   if (breached >= LOSS_THRESHOLD) {
     loseGame();
     return;
   }
-
   assessContainment();
 }
 
@@ -384,6 +403,11 @@ function useIsolate() {
   const device = getSelectedDevice();
   if (!device || device.state === "breached") return;
 
+  if (device.type === "switch") {
+    addLog(`The switch cannot be isolated in this simulation.`, "warn");
+    return;
+  }
+
   device.isolated = true;
   addLog(`${device.name} has been isolated from the estate.`, "warn");
   spawnShieldBurst(device.id);
@@ -405,10 +429,7 @@ devices.forEach(device => {
 function getDeviceCenter(id) {
   const el = document.getElementById(`d${id}`);
   const rect = el.getBoundingClientRect();
-  return {
-    x: rect.left + rect.width / 2,
-    y: rect.top + rect.height / 2
-  };
+  return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
 }
 
 function addParticle(x, y, vx, vy, size, color, life) {
@@ -419,15 +440,7 @@ function spawnDefenceBurst(id) {
   const p = getDeviceCenter(id);
   const colors = ["#59ff9d", "#a94cff", "#ffffff"];
   for (let i = 0; i < 24; i++) {
-    addParticle(
-      p.x,
-      p.y,
-      (Math.random() - 0.5) * 4.2,
-      (Math.random() - 0.5) * 4.2,
-      Math.random() * 4 + 2,
-      colors[Math.floor(Math.random() * colors.length)],
-      34
-    );
+    addParticle(p.x, p.y, (Math.random() - 0.5) * 4.2, (Math.random() - 0.5) * 4.2, Math.random() * 4 + 2, colors[Math.floor(Math.random() * colors.length)], 34);
   }
 }
 
@@ -435,15 +448,7 @@ function spawnShieldBurst(id) {
   const p = getDeviceCenter(id);
   const colors = ["#59ff9d", "#2cdc78", "#ffffff"];
   for (let i = 0; i < 30; i++) {
-    addParticle(
-      p.x,
-      p.y,
-      (Math.random() - 0.5) * 4.8,
-      (Math.random() - 0.5) * 4.8,
-      Math.random() * 5 + 2,
-      colors[Math.floor(Math.random() * colors.length)],
-      40
-    );
+    addParticle(p.x, p.y, (Math.random() - 0.5) * 4.8, (Math.random() - 0.5) * 4.8, Math.random() * 5 + 2, colors[Math.floor(Math.random() * colors.length)], 40);
   }
 }
 
@@ -451,15 +456,7 @@ function spawnSkullBurst(id) {
   const p = getDeviceCenter(id);
   const colors = ["#ff3b6b", "#ff6d92", "#ffffff"];
   for (let i = 0; i < 34; i++) {
-    addParticle(
-      p.x,
-      p.y,
-      (Math.random() - 0.5) * 5.2,
-      (Math.random() - 0.5) * 5.2,
-      Math.random() * 5 + 2,
-      colors[Math.floor(Math.random() * colors.length)],
-      42
-    );
+    addParticle(p.x, p.y, (Math.random() - 0.5) * 5.2, (Math.random() - 0.5) * 5.2, Math.random() * 5 + 2, colors[Math.floor(Math.random() * colors.length)], 42);
   }
 }
 
@@ -468,15 +465,7 @@ function fireworkBurst(x, y, count = 72) {
   for (let i = 0; i < count; i++) {
     const angle = (Math.PI * 2 * i) / count;
     const speed = Math.random() * 6.2 + 1.8;
-    addParticle(
-      x,
-      y,
-      Math.cos(angle) * speed,
-      Math.sin(angle) * speed,
-      Math.random() * 6 + 2,
-      colors[Math.floor(Math.random() * colors.length)],
-      88
-    );
+    addParticle(x, y, Math.cos(angle) * speed, Math.sin(angle) * speed, Math.random() * 6 + 2, colors[Math.floor(Math.random() * colors.length)], 88);
   }
 }
 
@@ -491,19 +480,12 @@ function launchVictoryFireworks() {
     [window.innerWidth * 0.9, window.innerHeight * 0.14]
   ];
 
-  bursts.forEach((burst, i) => {
-    setTimeout(() => fireworkBurst(burst[0], burst[1], 120), i * 180);
-  });
+  bursts.forEach((burst, i) => setTimeout(() => fireworkBurst(burst[0], burst[1], 120), i * 180));
 
   setTimeout(() => {
     const interval = setInterval(() => {
-      fireworkBurst(
-        Math.random() * window.innerWidth,
-        Math.random() * (window.innerHeight * 0.45),
-        100
-      );
+      fireworkBurst(Math.random() * window.innerWidth, Math.random() * (window.innerHeight * 0.45), 100);
     }, 320);
-
     setTimeout(() => clearInterval(interval), 2500);
   }, 900);
 }
@@ -516,15 +498,7 @@ function megaRansomBurst() {
   for (let i = 0; i < 180; i++) {
     const angle = Math.random() * Math.PI * 2;
     const speed = Math.random() * 6 + 1;
-    addParticle(
-      cx,
-      cy,
-      Math.cos(angle) * speed,
-      Math.sin(angle) * speed,
-      Math.random() * 5 + 2,
-      colors[Math.floor(Math.random() * colors.length)],
-      90
-    );
+    addParticle(cx, cy, Math.cos(angle) * speed, Math.sin(angle) * speed, Math.random() * 5 + 2, colors[Math.floor(Math.random() * colors.length)], 90);
   }
 }
 
