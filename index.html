@@ -1,1 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SCCYBER - Brute Force Lockdown</title>
 
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="bg-grid"></div>
+  <div class="bg-scanlines"></div>
+  <canvas id="fxCanvas"></canvas>
+
+  <main class="game-shell" id="gameShell">
+    <img src="logo.png" alt="SCCYBER logo" class="logo">
+
+    <h1 class="title">BRUTE FORCE LOCKDOWN</h1>
+    <p class="subtitle">Defend the network before every device is breached</p>
+
+    <section class="hud">
+      <div class="hud-box" id="statusBox">STATUS: LIVE ATTACK</div>
+      <div class="hud-box" id="timerBox">TIME: 00:00</div>
+      <div class="hud-box" id="secureBox">SECURED: 0 / 10</div>
+      <div class="hud-box" id="breachedBox">BREACHED: 0 / 10</div>
+    </section>
+
+    <section class="intro-card" id="introCard">
+      <div class="intro-title">MISSION BRIEFING</div>
+      <div class="intro-text">
+        A brute force attack has started against your on prem infrastructure. Ten devices are visible on the network.
+        You must take the right actions to stop the attacker from breaching every system.
+        <br><br>
+        Actions:
+        <br>• Lockout = stops brute force on one device
+        <br>• MFA = hardens one device
+        <br>• Isolate = cuts one device off from the network
+        <br><br>
+        You lose if all 10 devices are breached.
+        You win if you fully stop the attacker.
+      </div>
+      <button class="action-btn primary-btn" id="startBtn">START DEFENCE</button>
+    </section>
+
+    <section class="network-card" id="networkCard">
+      <div class="network-header">
+        <div class="section-title">NETWORK MAP</div>
+        <div class="attack-readout" id="attackReadout">ATTACKER TARGET: NONE</div>
+      </div>
+
+      <div class="network-board" id="networkBoard">
+        <svg class="network-lines" viewBox="0 0 1000 620" preserveAspectRatio="none">
+          <line x1="500" y1="150" x2="500" y2="270"></line>
+          <line x1="500" y1="270" x2="240" y2="270"></line>
+          <line x1="500" y1="270" x2="760" y2="270"></line>
+
+          <line x1="240" y1="270" x2="120" y2="390"></line>
+          <line x1="240" y1="270" x2="240" y2="390"></line>
+          <line x1="240" y1="270" x2="360" y2="390"></line>
+
+          <line x1="760" y1="270" x2="640" y2="390"></line>
+          <line x1="760" y1="270" x2="760" y2="390"></line>
+          <line x1="760" y1="270" x2="880" y2="390"></line>
+
+          <line x1="500" y1="270" x2="500" y2="520"></line>
+          <line x1="500" y1="520" x2="350" y2="520"></line>
+          <line x1="500" y1="520" x2="650" y2="520"></line>
+        </svg>
+
+        <div class="device router" id="d0" data-id="0">
+          <div class="device-icon">◉</div>
+          <div class="device-name">ROUTER</div>
+        </div>
+
+        <div class="device switch" id="d1" data-id="1">
+          <div class="device-icon">▣</div>
+          <div class="device-name">SWITCH</div>
+        </div>
+
+        <div class="device server" id="d2" data-id="2">
+          <div class="device-icon">▤</div>
+          <div class="device-name">SERVER 1</div>
+        </div>
+
+        <div class="device server" id="d3" data-id="3">
+          <div class="device-icon">▤</div>
+          <div class="device-name">SERVER 2</div>
+        </div>
+
+        <div class="device endpoint" id="d4" data-id="4">
+          <div class="device-icon">▥</div>
+          <div class="device-name">PC 1</div>
+        </div>
+
+        <div class="device endpoint" id="d5" data-id="5">
+          <div class="device-icon">▥</div>
+          <div class="device-name">PC 2</div>
+        </div>
+
+        <div class="device endpoint" id="d6" data-id="6">
+          <div class="device-icon">▥</div>
+          <div class="device-name">PC 3</div>
+        </div>
+
+        <div class="device endpoint" id="d7" data-id="7">
+          <div class="device-icon">▥</div>
+          <div class="device-name">PC 4</div>
+        </div>
+
+        <div class="device endpoint" id="d8" data-id="8">
+          <div class="device-icon">▥</div>
+          <div class="device-name">PC 5</div>
+        </div>
+
+        <div class="device endpoint" id="d9" data-id="9">
+          <div class="device-icon">▥</div>
+          <div class="device-name">PC 6</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="control-card" id="controlCard">
+      <div class="section-title">DEFENCE ACTIONS</div>
+      <div class="device-select-wrap">
+        <label for="deviceSelect">SELECT DEVICE</label>
+        <select id="deviceSelect"></select>
+      </div>
+
+      <div class="actions">
+        <button class="action-btn" id="lockoutBtn">ENABLE LOCKOUT</button>
+        <button class="action-btn" id="mfaBtn">APPLY MFA</button>
+        <button class="action-btn" id="isolateBtn">ISOLATE DEVICE</button>
+      </div>
+
+      <div class="event-log" id="eventLog">
+        <div class="log-title">EVENT LOG</div>
+        <div class="log-lines" id="logLines"></div>
+      </div>
+    </section>
+  </main>
+
+  <div class="breach-overlay" id="breachOverlay">
+    <div class="breach-warning">NETWORK COMPROMISED</div>
+    <div class="giant-ransom-skull" id="giantRansomSkull">
+      <div class="skull-row"></div>
+      <div class="skull-row"></div>
+      <div class="skull-row"></div>
+      <div class="skull-row"></div>
+      <div class="skull-row"></div>
+      <div class="skull-row"></div>
+      <div class="skull-row"></div>
+      <div class="skull-row"></div>
+      <div class="skull-row"></div>
+      <div class="skull-row"></div>
+      <div class="skull-row"></div>
+      <div class="skull-row"></div>
+    </div>
+    <div class="breach-subtext" id="breachSubtext">ALL DEVICES BREACHED</div>
+    <button class="overlay-btn" onclick="location.reload()">PLAY AGAIN</button>
+  </div>
+
+  <div class="victory-overlay" id="victoryOverlay">
+    <div class="victory-topline">FIREWALL CONTAINMENT ACTIVE</div>
+
+    <div class="victory-wall-wrap">
+      <div class="victory-wall victory-wall-left"></div>
+      <div class="victory-core">🛡</div>
+      <div class="victory-wall victory-wall-right"></div>
+    </div>
+
+    <div class="victory-title">ATTACK LOCKED OUT</div>
+    <div class="victory-status">MISSION PASSED</div>
+    <div class="victory-score" id="victoryScore">10 / 10 DEVICES SAFE</div>
+    <div class="victory-time" id="victoryTime">TIME 00:00</div>
+    <button class="overlay-btn" onclick="location.reload()">PLAY AGAIN</button>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
