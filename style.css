@@ -275,9 +275,20 @@ body{
   border-color:var(--red);
 }
 
+.device.dual-target{
+  border-color:var(--amber);
+  box-shadow:0 0 24px rgba(255,212,77,0.5);
+  animation:dualTargetPulse 0.9s infinite;
+}
+
 @keyframes targetPulse{
   0%,100%{ box-shadow:0 0 10px rgba(255,59,107,0.15); }
   50%{ box-shadow:0 0 28px rgba(255,59,107,0.5); }
+}
+
+@keyframes dualTargetPulse{
+  0%,100%{ box-shadow:0 0 12px rgba(255,212,77,0.2); }
+  50%{ box-shadow:0 0 30px rgba(255,212,77,0.65); }
 }
 
 .device.breached{
@@ -619,38 +630,18 @@ body{
   box-shadow:0 0 10px #ff3b6b, 0 0 24px rgba(255,59,107,0.45);
 }
 
-.skull-row:nth-child(1)::after{
-  background:linear-gradient(90deg,transparent 0 32px,#ff3b6b 32px 48px,#ff3b6b 48px 64px,#ff3b6b 64px 80px,#ff3b6b 80px 96px,#ff3b6b 96px 112px,#ff3b6b 112px 128px,#ff3b6b 128px 144px,#ff3b6b 144px 160px,#ff3b6b 160px 176px,#ff3b6b 176px 192px,transparent 192px 224px);
-}
-.skull-row:nth-child(2)::after{
-  background:linear-gradient(90deg,transparent 0 16px,#ff3b6b 16px 32px,#ff3b6b 32px 48px,#ff3b6b 48px 64px,#ff3b6b 64px 80px,#ff3b6b 80px 96px,#ff3b6b 96px 112px,#ff3b6b 112px 128px,#ff3b6b 128px 144px,#ff3b6b 144px 160px,#ff3b6b 160px 176px,#ff3b6b 176px 192px,#ff3b6b 192px 208px,transparent 208px 224px);
-}
+.skull-row:nth-child(1)::after{ background:linear-gradient(90deg,transparent 0 32px,#ff3b6b 32px 48px,#ff3b6b 48px 64px,#ff3b6b 64px 80px,#ff3b6b 80px 96px,#ff3b6b 96px 112px,#ff3b6b 112px 128px,#ff3b6b 128px 144px,#ff3b6b 144px 160px,#ff3b6b 160px 176px,#ff3b6b 176px 192px,transparent 192px 224px); }
+.skull-row:nth-child(2)::after{ background:linear-gradient(90deg,transparent 0 16px,#ff3b6b 16px 32px,#ff3b6b 32px 48px,#ff3b6b 48px 64px,#ff3b6b 64px 80px,#ff3b6b 80px 96px,#ff3b6b 96px 112px,#ff3b6b 112px 128px,#ff3b6b 128px 144px,#ff3b6b 144px 160px,#ff3b6b 160px 176px,#ff3b6b 176px 192px,#ff3b6b 192px 208px,transparent 208px 224px); }
 .skull-row:nth-child(3)::after,
-.skull-row:nth-child(6)::after{
-  background:linear-gradient(90deg,#ff3b6b 0 16px,#ff3b6b 16px 32px,#ff3b6b 32px 48px,#ff3b6b 48px 64px,#ff3b6b 64px 80px,#ff3b6b 80px 96px,#ff3b6b 96px 112px,#ff3b6b 112px 128px,#ff3b6b 128px 144px,#ff3b6b 144px 160px,#ff3b6b 160px 176px,#ff3b6b 176px 192px,#ff3b6b 192px 208px,#ff3b6b 208px 224px);
-}
+.skull-row:nth-child(6)::after{ background:linear-gradient(90deg,#ff3b6b 0 16px,#ff3b6b 16px 32px,#ff3b6b 32px 48px,#ff3b6b 48px 64px,#ff3b6b 64px 80px,#ff3b6b 80px 96px,#ff3b6b 96px 112px,#ff3b6b 112px 128px,#ff3b6b 128px 144px,#ff3b6b 144px 160px,#ff3b6b 160px 176px,#ff3b6b 176px 192px,#ff3b6b 192px 208px,#ff3b6b 208px 224px); }
 .skull-row:nth-child(4)::after,
-.skull-row:nth-child(5)::after{
-  background:linear-gradient(90deg,#ff3b6b 0 16px,#ff3b6b 16px 32px,#ff3b6b 32px 48px,transparent 48px 80px,#ff3b6b 80px 96px,#ff3b6b 96px 112px,transparent 112px 144px,#ff3b6b 144px 160px,#ff3b6b 160px 176px,#ff3b6b 176px 192px,#ff3b6b 192px 208px,#ff3b6b 208px 224px);
-}
-.skull-row:nth-child(7)::after{
-  background:linear-gradient(90deg,transparent 0 16px,#ff3b6b 16px 32px,#ff3b6b 32px 48px,#ff3b6b 48px 64px,#ff3b6b 64px 80px,#ff3b6b 80px 96px,#ff3b6b 96px 112px,#ff3b6b 112px 128px,#ff3b6b 128px 144px,#ff3b6b 144px 160px,#ff3b6b 160px 176px,#ff3b6b 176px 192px,transparent 192px 224px);
-}
-.skull-row:nth-child(8)::after{
-  background:linear-gradient(90deg,transparent 0 32px,#ff3b6b 32px 48px,#ff3b6b 48px 64px,#ff3b6b 64px 80px,#ff3b6b 80px 96px,#ff3b6b 96px 112px,#ff3b6b 112px 128px,#ff3b6b 128px 144px,#ff3b6b 144px 160px,#ff3b6b 160px 176px,transparent 176px 224px);
-}
-.skull-row:nth-child(9)::after{
-  background:linear-gradient(90deg,transparent 0 48px,#ff3b6b 48px 64px,#ff3b6b 64px 80px,#ff3b6b 80px 96px,#ff3b6b 96px 112px,#ff3b6b 112px 128px,#ff3b6b 128px 144px,#ff3b6b 144px 160px,transparent 160px 224px);
-}
-.skull-row:nth-child(10)::after{
-  background:linear-gradient(90deg,transparent 0 32px,#ff3b6b 32px 48px,#ff3b6b 48px 64px,#ff3b6b 64px 80px,transparent 80px 144px,#ff3b6b 144px 160px,#ff3b6b 160px 176px,#ff3b6b 176px 192px,transparent 192px 224px);
-}
-.skull-row:nth-child(11)::after{
-  background:linear-gradient(90deg,transparent 0 16px,#ff3b6b 16px 32px,#ff3b6b 32px 48px,transparent 48px 176px,#ff3b6b 176px 192px,#ff3b6b 192px 208px,transparent 208px 224px);
-}
-.skull-row:nth-child(12)::after{
-  background:linear-gradient(90deg,#ff3b6b 0 16px,#ff3b6b 16px 32px,transparent 32px 192px,#ff3b6b 192px 208px,#ff3b6b 208px 224px);
-}
+.skull-row:nth-child(5)::after{ background:linear-gradient(90deg,#ff3b6b 0 16px,#ff3b6b 16px 32px,#ff3b6b 32px 48px,transparent 48px 80px,#ff3b6b 80px 96px,#ff3b6b 96px 112px,transparent 112px 144px,#ff3b6b 144px 160px,#ff3b6b 160px 176px,#ff3b6b 176px 192px,#ff3b6b 192px 208px,#ff3b6b 208px 224px); }
+.skull-row:nth-child(7)::after{ background:linear-gradient(90deg,transparent 0 16px,#ff3b6b 16px 32px,#ff3b6b 32px 48px,#ff3b6b 48px 64px,#ff3b6b 64px 80px,#ff3b6b 80px 96px,#ff3b6b 96px 112px,#ff3b6b 112px 128px,#ff3b6b 128px 144px,#ff3b6b 144px 160px,#ff3b6b 160px 176px,#ff3b6b 176px 192px,transparent 192px 224px); }
+.skull-row:nth-child(8)::after{ background:linear-gradient(90deg,transparent 0 32px,#ff3b6b 32px 48px,#ff3b6b 48px 64px,#ff3b6b 64px 80px,#ff3b6b 80px 96px,#ff3b6b 96px 112px,#ff3b6b 112px 128px,#ff3b6b 128px 144px,#ff3b6b 144px 160px,#ff3b6b 160px 176px,transparent 176px 224px); }
+.skull-row:nth-child(9)::after{ background:linear-gradient(90deg,transparent 0 48px,#ff3b6b 48px 64px,#ff3b6b 64px 80px,#ff3b6b 80px 96px,#ff3b6b 96px 112px,#ff3b6b 112px 128px,#ff3b6b 128px 144px,#ff3b6b 144px 160px,transparent 160px 224px); }
+.skull-row:nth-child(10)::after{ background:linear-gradient(90deg,transparent 0 32px,#ff3b6b 32px 48px,#ff3b6b 48px 64px,#ff3b6b 64px 80px,transparent 80px 144px,#ff3b6b 144px 160px,#ff3b6b 160px 176px,#ff3b6b 176px 192px,transparent 192px 224px); }
+.skull-row:nth-child(11)::after{ background:linear-gradient(90deg,transparent 0 16px,#ff3b6b 16px 32px,#ff3b6b 32px 48px,transparent 48px 176px,#ff3b6b 176px 192px,#ff3b6b 192px 208px,transparent 208px 224px); }
+.skull-row:nth-child(12)::after{ background:linear-gradient(90deg,#ff3b6b 0 16px,#ff3b6b 16px 32px,transparent 32px 192px,#ff3b6b 192px 208px,#ff3b6b 208px 224px); }
 
 .breach-subtext{
   font-family:'Press Start 2P', cursive;
