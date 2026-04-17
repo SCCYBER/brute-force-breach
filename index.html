@@ -20,33 +20,36 @@
     <img src="logo.png" alt="SCCYBER logo" class="logo">
 
     <h1 class="title">BRUTE FORCE LOCKDOWN</h1>
-    <p class="subtitle">Defend the network before every device is breached</p>
+    <p class="subtitle">Tap the device under attack. Defend the estate before the breach spreads.</p>
 
     <section class="hud">
-      <div class="hud-box" id="statusBox">STATUS: LIVE ATTACK</div>
+      <div class="hud-box" id="statusBox">STATUS: STANDBY</div>
       <div class="hud-box" id="timerBox">TIME: 00:00</div>
-      <div class="hud-box" id="secureBox">SECURED: 0 / 10</div>
+      <div class="hud-box" id="safeBox">SAFE: 10 / 10</div>
       <div class="hud-box" id="breachedBox">BREACHED: 0 / 10</div>
     </section>
 
     <section class="intro-card" id="introCard">
       <div class="intro-title">MISSION BRIEFING</div>
       <div class="intro-text">
-        A brute force attack has started against your on prem infrastructure. Ten devices are visible on the network.
-        You must take the right actions to stop the attacker from breaching every system.
+        A brute force attack has started against your on prem network.
         <br><br>
-        Actions:
-        <br>• Lockout = stops brute force on one device
-        <br>• MFA = hardens one device
-        <br>• Isolate = cuts one device off from the network
+        There are 10 visible devices in the estate.
         <br><br>
-        You lose if all 10 devices are breached.
-        You win if you fully stop the attacker.
+        Tap or click a device to select it, then use one of the actions below.
+        <br><br>
+        • Lockout = blocks brute force attempts
+        <br>• MFA = hardens the device
+        <br>• Isolate = cuts it off from the estate
+        <br><br>
+        Win by stopping the attackers from moving across the estate.
+        <br>
+        Lose if more than half the devices are affected.
       </div>
       <button class="action-btn primary-btn" id="startBtn">START DEFENCE</button>
     </section>
 
-    <section class="network-card" id="networkCard">
+    <section class="network-card">
       <div class="network-header">
         <div class="section-title">NETWORK MAP</div>
         <div class="attack-readout" id="attackReadout">ATTACKER TARGET: NONE</div>
@@ -54,80 +57,91 @@
 
       <div class="network-board" id="networkBoard">
         <svg class="network-lines" viewBox="0 0 1000 620" preserveAspectRatio="none">
-          <line x1="500" y1="150" x2="500" y2="270"></line>
-          <line x1="500" y1="270" x2="240" y2="270"></line>
-          <line x1="500" y1="270" x2="760" y2="270"></line>
+          <line x1="500" y1="110" x2="500" y2="205"></line>
+          <line x1="500" y1="205" x2="500" y2="300"></line>
 
-          <line x1="240" y1="270" x2="120" y2="390"></line>
-          <line x1="240" y1="270" x2="240" y2="390"></line>
-          <line x1="240" y1="270" x2="360" y2="390"></line>
+          <line x1="500" y1="205" x2="260" y2="205"></line>
+          <line x1="500" y1="205" x2="740" y2="205"></line>
 
-          <line x1="760" y1="270" x2="640" y2="390"></line>
-          <line x1="760" y1="270" x2="760" y2="390"></line>
-          <line x1="760" y1="270" x2="880" y2="390"></line>
+          <line x1="260" y1="205" x2="160" y2="315"></line>
+          <line x1="260" y1="205" x2="260" y2="315"></line>
+          <line x1="260" y1="205" x2="360" y2="315"></line>
 
-          <line x1="500" y1="270" x2="500" y2="520"></line>
-          <line x1="500" y1="520" x2="350" y2="520"></line>
-          <line x1="500" y1="520" x2="650" y2="520"></line>
+          <line x1="740" y1="205" x2="640" y2="315"></line>
+          <line x1="740" y1="205" x2="740" y2="315"></line>
+          <line x1="740" y1="205" x2="840" y2="315"></line>
+
+          <line x1="500" y1="300" x2="390" y2="455"></line>
+          <line x1="500" y1="300" x2="610" y2="455"></line>
         </svg>
 
         <div class="device router" id="d0" data-id="0">
+          <div class="device-art shield-art">🛡</div>
           <div class="device-icon">◉</div>
           <div class="device-name">ROUTER</div>
         </div>
 
         <div class="device switch" id="d1" data-id="1">
+          <div class="device-art shield-art">▣</div>
           <div class="device-icon">▣</div>
           <div class="device-name">SWITCH</div>
         </div>
 
         <div class="device server" id="d2" data-id="2">
+          <div class="device-art skull-art">☠</div>
           <div class="device-icon">▤</div>
           <div class="device-name">SERVER 1</div>
         </div>
 
         <div class="device server" id="d3" data-id="3">
+          <div class="device-art skull-art">☠</div>
           <div class="device-icon">▤</div>
           <div class="device-name">SERVER 2</div>
         </div>
 
         <div class="device endpoint" id="d4" data-id="4">
+          <div class="device-art skull-art">☠</div>
           <div class="device-icon">▥</div>
           <div class="device-name">PC 1</div>
         </div>
 
         <div class="device endpoint" id="d5" data-id="5">
+          <div class="device-art skull-art">☠</div>
           <div class="device-icon">▥</div>
           <div class="device-name">PC 2</div>
         </div>
 
         <div class="device endpoint" id="d6" data-id="6">
+          <div class="device-art skull-art">☠</div>
           <div class="device-icon">▥</div>
           <div class="device-name">PC 3</div>
         </div>
 
         <div class="device endpoint" id="d7" data-id="7">
+          <div class="device-art skull-art">☠</div>
           <div class="device-icon">▥</div>
           <div class="device-name">PC 4</div>
         </div>
 
         <div class="device endpoint" id="d8" data-id="8">
+          <div class="device-art skull-art">☠</div>
           <div class="device-icon">▥</div>
           <div class="device-name">PC 5</div>
         </div>
 
         <div class="device endpoint" id="d9" data-id="9">
+          <div class="device-art skull-art">☠</div>
           <div class="device-icon">▥</div>
           <div class="device-name">PC 6</div>
         </div>
       </div>
     </section>
 
-    <section class="control-card" id="controlCard">
+    <section class="control-card">
       <div class="section-title">DEFENCE ACTIONS</div>
-      <div class="device-select-wrap">
-        <label for="deviceSelect">SELECT DEVICE</label>
-        <select id="deviceSelect"></select>
+
+      <div class="selected-device-box" id="selectedDeviceBox">
+        SELECTED DEVICE: <span id="selectedDeviceName">NONE</span>
       </div>
 
       <div class="actions">
@@ -136,7 +150,16 @@
         <button class="action-btn" id="isolateBtn">ISOLATE DEVICE</button>
       </div>
 
-      <div class="event-log" id="eventLog">
+      <div class="rules-card">
+        <div class="rules-title">WIN / LOSS RULES</div>
+        <div class="rules-text">
+          Win by fully containing the attack so it can no longer spread to any new device.
+          <br>
+          Lose when 6 or more devices are breached.
+        </div>
+      </div>
+
+      <div class="event-log">
         <div class="log-title">EVENT LOG</div>
         <div class="log-lines" id="logLines"></div>
       </div>
@@ -159,7 +182,7 @@
       <div class="skull-row"></div>
       <div class="skull-row"></div>
     </div>
-    <div class="breach-subtext" id="breachSubtext">ALL DEVICES BREACHED</div>
+    <div class="breach-subtext" id="breachSubtext">MORE THAN HALF THE ESTATE WAS BREACHED</div>
     <button class="overlay-btn" onclick="location.reload()">PLAY AGAIN</button>
   </div>
 
@@ -174,7 +197,7 @@
 
     <div class="victory-title">ATTACK LOCKED OUT</div>
     <div class="victory-status">MISSION PASSED</div>
-    <div class="victory-score" id="victoryScore">10 / 10 DEVICES SAFE</div>
+    <div class="victory-score" id="victoryScore">ESTATE SECURED</div>
     <div class="victory-time" id="victoryTime">TIME 00:00</div>
     <button class="overlay-btn" onclick="location.reload()">PLAY AGAIN</button>
   </div>
