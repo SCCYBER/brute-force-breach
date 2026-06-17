@@ -1,0 +1,319 @@
+/* Compact gameplay layout for easier navigation */
+body{
+  padding:8px;
+}
+
+.game-shell{
+  max-width:1080px;
+  padding:10px;
+  border-radius:14px;
+}
+
+.logo{
+  width:92px;
+  margin-bottom:6px;
+}
+
+.title{
+  font-size:clamp(13px, 1.55vw, 20px);
+  line-height:1.35;
+  margin-bottom:4px;
+}
+
+.subtitle{
+  font-size:12px;
+  margin-bottom:8px;
+}
+
+.hud{
+  gap:6px;
+  margin-bottom:8px;
+}
+
+.hud-box{
+  padding:7px 6px;
+  font-size:8px;
+  border-radius:10px;
+}
+
+.intro-card,
+.network-card,
+.control-card,
+.rules-card{
+  padding:10px;
+  border-radius:12px;
+}
+
+.intro-card{
+  margin-bottom:8px;
+}
+
+.intro-title,
+.section-title,
+.log-title,
+.rules-title{
+  font-size:9px;
+  margin-bottom:7px;
+  line-height:1.5;
+}
+
+.intro-text,
+.rules-text{
+  font-size:12px;
+  line-height:1.5;
+  margin-bottom:10px;
+}
+
+.network-card{
+  margin-bottom:8px;
+}
+
+.network-header{
+  margin-bottom:6px;
+}
+
+.attack-readout{
+  font-size:8px;
+}
+
+.network-board{
+  height:min(46vw, 430px);
+  min-height:345px;
+  border-radius:12px;
+}
+
+.device{
+  width:clamp(66px, 6.3vw, 82px);
+  min-height:58px;
+  padding:6px 4px;
+  border-radius:11px;
+}
+
+.device:hover,
+.device:active{
+  transform:scale(1.02);
+}
+
+.device-icon{
+  font-size:16px;
+  margin-bottom:3px;
+}
+
+.device-name{
+  font-size:6.5px;
+  line-height:1.4;
+}
+
+.device-label-status{
+  font-size:7px;
+  margin-top:2px;
+}
+
+.device-art{
+  font-size:10px;
+  top:3px;
+  right:5px;
+}
+
+#d0{ top:2%; left:46%; }
+#d1{ top:14%; left:46%; }
+
+#d2{ top:18%; left:22%; }
+#d3{ top:18%; left:70%; }
+
+#d4{ top:36%; left:8%; }
+#d5{ top:36%; left:20%; }
+#d6{ top:36%; left:32%; }
+#d7{ top:36%; left:56%; }
+#d8{ top:36%; left:68%; }
+#d9{ top:36%; left:80%; }
+
+#d10{ top:66%; left:29%; }
+#d11{ top:66%; left:65%; }
+
+.selected-device-box{
+  padding:7px 9px;
+  font-size:8px;
+  margin-bottom:8px;
+  border-radius:10px;
+}
+
+.actions{
+  gap:6px;
+  margin-bottom:8px;
+}
+
+.action-btn{
+  padding:9px 7px;
+  font-size:8px;
+  border-radius:10px;
+  line-height:1.45;
+}
+
+.action-count{
+  font-size:7px;
+  margin-top:3px;
+}
+
+.balance-panel,
+.score-panel,
+.lesson-panel{
+  margin:7px 0;
+  padding:9px;
+  font-size:11.5px;
+  line-height:1.45;
+  border-radius:11px;
+}
+
+.balance-panel strong,
+.score-panel strong,
+.lesson-panel strong{
+  font-size:8px;
+  margin-bottom:6px;
+}
+
+.score-grid{
+  gap:6px;
+  margin-top:6px;
+}
+
+.score-pill{
+  padding:7px 5px;
+  font-size:7px;
+  border-radius:9px;
+}
+
+.event-log{
+  padding:9px;
+  border-radius:11px;
+}
+
+.log-lines{
+  max-height:92px;
+  gap:5px;
+}
+
+.log-line{
+  font-size:11.5px;
+  line-height:1.35;
+  padding-left:7px;
+}
+
+.rules-card{
+  margin-bottom:8px;
+}
+
+.victory-wall-wrap{
+  height:150px;
+  margin-bottom:12px;
+}
+
+.victory-wall{
+  width:55px;
+  height:135px;
+}
+
+.victory-core{
+  width:76px;
+  height:76px;
+  font-size:50px;
+}
+
+.victory-title{
+  font-size:clamp(16px, 3vw, 30px);
+  margin-bottom:8px;
+}
+
+.victory-status,
+.victory-score,
+.victory-time,
+.breach-subtext{
+  font-size:clamp(9px, 1.4vw, 14px);
+  line-height:1.6;
+}
+
+@media (max-width:900px){
+  body{
+    padding:6px;
+  }
+
+  .game-shell{
+    padding:8px;
+  }
+
+  .logo{
+    width:78px;
+  }
+
+  .hud{
+    grid-template-columns:repeat(2, 1fr);
+  }
+
+  .network-header{
+    gap:4px;
+  }
+
+  .network-board{
+    height:500px;
+    min-height:500px;
+  }
+
+  .device{
+    width:72px;
+    min-height:64px;
+  }
+
+  #d0{ top:2%; left:calc(50% - 36px); }
+  #d1{ top:13%; left:calc(50% - 36px); }
+
+  #d2{ top:25%; left:12%; }
+  #d3{ top:25%; right:12%; left:auto; }
+
+  #d4{ top:40%; left:3%; }
+  #d5{ top:40%; left:22%; }
+  #d6{ top:40%; left:41%; }
+  #d7{ top:40%; left:60%; }
+  #d8{ top:40%; left:79%; }
+
+  #d9{ top:58%; left:10%; }
+  #d10{ top:58%; left:calc(50% - 36px); }
+  #d11{ top:58%; right:10%; left:auto; }
+
+  .actions{
+    grid-template-columns:1fr;
+  }
+
+  .action-btn{
+    min-height:46px;
+  }
+
+  .score-grid{
+    grid-template-columns:repeat(2, 1fr);
+  }
+
+  .log-lines{
+    max-height:84px;
+  }
+}
+
+@media (max-height:760px) and (min-width:901px){
+  .logo{
+    width:76px;
+  }
+
+  .network-board{
+    height:380px;
+    min-height:330px;
+  }
+
+  .intro-text,
+  .rules-text,
+  .balance-panel,
+  .lesson-panel{
+    font-size:11px;
+  }
+
+  .log-lines{
+    max-height:70px;
+  }
+}
