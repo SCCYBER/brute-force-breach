@@ -4,11 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SCCYBER - Brute Force Lockdown</title>
-
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Share+Tech+Mono&display=swap" rel="stylesheet">
-
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="compact-ui.css" />
 </head>
@@ -19,164 +17,40 @@
 
   <main class="game-shell" id="gameShell">
     <img src="logo.png" alt="SCCYBER logo" class="logo">
-
     <h1 class="title">BRUTE FORCE LOCKDOWN</h1>
     <p class="subtitle">Tap the attacked device. Contain the spread before the estate falls.</p>
 
-    <section class="hud">
-      <div class="hud-box" id="statusBox">STATUS: STANDBY</div>
-      <div class="hud-box timer-critical" id="timerBox">TIME: 02:00</div>
-      <div class="hud-box" id="safeBox">SAFE: 12 / 12</div>
-      <div class="hud-box" id="breachedBox">BREACHED: 0 / 12</div>
-    </section>
+    <section class="hud"><div class="hud-box" id="statusBox">STATUS: STANDBY</div><div class="hud-box timer-critical" id="timerBox">TIME: 02:00</div><div class="hud-box" id="safeBox">SAFE: 12 / 12</div><div class="hud-box" id="breachedBox">BREACHED: 0 / 12</div></section>
 
     <section class="intro-card" id="introCard">
       <div class="intro-title">MISSION BRIEFING</div>
-      <div class="intro-text">
-        A brute force attack is underway against your on prem network.
-        <br><br>
-        There are 12 devices in the estate.
-        <br><br>
-        Tap or click a device to select it, then choose a defence action.
-        <br><br>
-        Lockout = strongest defence against brute force
-        <br>
-        MFA = useful on endpoints and servers only
-        <br>
-        Isolation = removes a device from the estate to stop spread
-        <br><br>
-        The switch can now come under attack at the same time as another device in rare pressure events.
-        <br><br>
-        Win by surviving the full 2 minutes while stopping the attackers from spreading across the estate.
-        <br>
-        Lose if 7 or more devices are breached.
-      </div>
+      <div class="intro-text">A brute force attack is underway against your on prem network.<br><br>There are 12 devices in the estate.<br><br>Tap or click a device to select it, then choose a defence action.<br><br>Lockout = strongest defence against brute force<br>MFA = useful on endpoints and servers only<br>Isolation = removes a device from the estate to stop spread<br><br>The switch can now come under attack at the same time as another device in rare pressure events.<br><br>Win by surviving the full 2 minutes while stopping the attackers from spreading across the estate.<br>Lose if 7 or more devices are breached.</div>
       <button class="action-btn primary-btn" id="startBtn">START DEFENCE</button>
     </section>
 
     <section class="network-card">
-      <div class="network-header">
-        <div class="section-title">NETWORK MAP</div>
-        <div class="attack-readout" id="attackReadout">ATTACKER TARGET: NONE</div>
-      </div>
-
+      <div class="network-header"><div class="section-title">NETWORK MAP</div><div class="attack-readout" id="attackReadout">ATTACKER TARGET: NONE</div></div>
       <div class="network-board" id="networkBoard">
-        <svg class="network-lines" viewBox="0 0 1000 700" preserveAspectRatio="none">
-          <line x1="500" y1="90" x2="500" y2="175"></line>
-          <line x1="500" y1="175" x2="500" y2="265"></line>
-          <line x1="500" y1="175" x2="270" y2="175"></line>
-          <line x1="500" y1="175" x2="730" y2="175"></line>
-          <line x1="270" y1="175" x2="150" y2="295"></line>
-          <line x1="270" y1="175" x2="270" y2="295"></line>
-          <line x1="270" y1="175" x2="390" y2="295"></line>
-          <line x1="730" y1="175" x2="610" y2="295"></line>
-          <line x1="730" y1="175" x2="730" y2="295"></line>
-          <line x1="730" y1="175" x2="850" y2="295"></line>
-          <line x1="500" y1="265" x2="230" y2="500"></line>
-          <line x1="500" y1="265" x2="380" y2="500"></line>
-          <line x1="500" y1="265" x2="500" y2="500"></line>
-          <line x1="500" y1="265" x2="620" y2="500"></line>
-          <line x1="500" y1="265" x2="770" y2="500"></line>
-        </svg>
-
-        <div class="device router" id="d0" data-id="0"><div class="device-art shield-art">🛡</div><div class="device-icon">◉</div><div class="device-name">ROUTER</div></div>
-        <div class="device switch" id="d1" data-id="1"><div class="device-art shield-art">▣</div><div class="device-icon">▣</div><div class="device-name">SWITCH</div></div>
-        <div class="device server" id="d2" data-id="2"><div class="device-art skull-art">☠</div><div class="device-icon">▤</div><div class="device-name">SERVER 1</div></div>
-        <div class="device server" id="d3" data-id="3"><div class="device-art skull-art">☠</div><div class="device-icon">▤</div><div class="device-name">SERVER 2</div></div>
-        <div class="device endpoint" id="d4" data-id="4"><div class="device-art skull-art">☠</div><div class="device-icon">▥</div><div class="device-name">PC 1</div></div>
-        <div class="device endpoint" id="d5" data-id="5"><div class="device-art skull-art">☠</div><div class="device-icon">▥</div><div class="device-name">PC 2</div></div>
-        <div class="device endpoint" id="d6" data-id="6"><div class="device-art skull-art">☠</div><div class="device-icon">▥</div><div class="device-name">PC 3</div></div>
-        <div class="device endpoint" id="d7" data-id="7"><div class="device-art skull-art">☠</div><div class="device-icon">▥</div><div class="device-name">PC 4</div></div>
-        <div class="device endpoint" id="d8" data-id="8"><div class="device-art skull-art">☠</div><div class="device-icon">▥</div><div class="device-name">PC 5</div></div>
-        <div class="device endpoint" id="d9" data-id="9"><div class="device-art skull-art">☠</div><div class="device-icon">▥</div><div class="device-name">PC 6</div></div>
-        <div class="device endpoint" id="d10" data-id="10"><div class="device-art skull-art">☠</div><div class="device-icon">▥</div><div class="device-name">PC 7</div></div>
-        <div class="device endpoint" id="d11" data-id="11"><div class="device-art skull-art">☠</div><div class="device-icon">▥</div><div class="device-name">PC 8</div></div>
+        <svg class="network-lines" viewBox="0 0 1000 700" preserveAspectRatio="none"><line x1="500" y1="90" x2="500" y2="175"></line><line x1="500" y1="175" x2="500" y2="265"></line><line x1="500" y1="175" x2="270" y2="175"></line><line x1="500" y1="175" x2="730" y2="175"></line><line x1="270" y1="175" x2="150" y2="295"></line><line x1="270" y1="175" x2="270" y2="295"></line><line x1="270" y1="175" x2="390" y2="295"></line><line x1="730" y1="175" x2="610" y2="295"></line><line x1="730" y1="175" x2="730" y2="295"></line><line x1="730" y1="175" x2="850" y2="295"></line><line x1="500" y1="265" x2="230" y2="500"></line><line x1="500" y1="265" x2="380" y2="500"></line><line x1="500" y1="265" x2="500" y2="500"></line><line x1="500" y1="265" x2="620" y2="500"></line><line x1="500" y1="265" x2="770" y2="500"></line></svg>
+        <div class="device router" id="d0" data-id="0"><div class="device-art shield-art">🛡</div><div class="device-icon">◉</div><div class="device-name">ROUTER</div></div><div class="device switch" id="d1" data-id="1"><div class="device-art shield-art">▣</div><div class="device-icon">▣</div><div class="device-name">SWITCH</div></div><div class="device server" id="d2" data-id="2"><div class="device-art skull-art">☠</div><div class="device-icon">▤</div><div class="device-name">SERVER 1</div></div><div class="device server" id="d3" data-id="3"><div class="device-art skull-art">☠</div><div class="device-icon">▤</div><div class="device-name">SERVER 2</div></div><div class="device endpoint" id="d4" data-id="4"><div class="device-art skull-art">☠</div><div class="device-icon">▥</div><div class="device-name">PC 1</div></div><div class="device endpoint" id="d5" data-id="5"><div class="device-art skull-art">☠</div><div class="device-icon">▥</div><div class="device-name">PC 2</div></div><div class="device endpoint" id="d6" data-id="6"><div class="device-art skull-art">☠</div><div class="device-icon">▥</div><div class="device-name">PC 3</div></div><div class="device endpoint" id="d7" data-id="7"><div class="device-art skull-art">☠</div><div class="device-icon">▥</div><div class="device-name">PC 4</div></div><div class="device endpoint" id="d8" data-id="8"><div class="device-art skull-art">☠</div><div class="device-icon">▥</div><div class="device-name">PC 5</div></div><div class="device endpoint" id="d9" data-id="9"><div class="device-art skull-art">☠</div><div class="device-icon">▥</div><div class="device-name">PC 6</div></div><div class="device endpoint" id="d10" data-id="10"><div class="device-art skull-art">☠</div><div class="device-icon">▥</div><div class="device-name">PC 7</div></div><div class="device endpoint" id="d11" data-id="11"><div class="device-art skull-art">☠</div><div class="device-icon">▥</div><div class="device-name">PC 8</div></div>
       </div>
     </section>
 
-    <section class="control-card">
-      <div class="section-title">DEFENCE ACTIONS</div>
-      <div class="selected-device-box" id="selectedDeviceBox">SELECTED DEVICE: <span id="selectedDeviceName">NONE</span></div>
-      <div class="actions">
-        <button class="action-btn" id="lockoutBtn">ENABLE LOCKOUT</button>
-        <button class="action-btn" id="mfaBtn">APPLY MFA</button>
-        <button class="action-btn" id="isolateBtn">ISOLATE DEVICE</button>
-      </div>
-      <div class="rules-card">
-        <div class="rules-title">WIN / LOSS RULES</div>
-        <div class="rules-text">
-          Win by surviving the full 2 minutes while stopping the attackers from spreading across the estate.<br>
-          Lose when 7 or more devices are breached.<br><br>
-          MFA is only valid on servers and PCs.<br>
-          Lockout works across all devices.<br>
-          Isolation works on all devices except the switch.<br>
-          The switch may be attacked simultaneously with another random device.
-        </div>
-      </div>
-      <div class="event-log">
-        <div class="log-title">EVENT LOG</div>
-        <div class="log-lines" id="logLines"></div>
-      </div>
-    </section>
+    <section class="control-card"><div class="section-title">DEFENCE ACTIONS</div><div class="selected-device-box" id="selectedDeviceBox">SELECTED DEVICE: <span id="selectedDeviceName">NONE</span></div><div class="actions"><button class="action-btn" id="lockoutBtn">ENABLE LOCKOUT</button><button class="action-btn" id="mfaBtn">APPLY MFA</button><button class="action-btn" id="isolateBtn">ISOLATE DEVICE</button></div><div class="rules-card"><div class="rules-title">WIN / LOSS RULES</div><div class="rules-text">Win by surviving the full 2 minutes while stopping the attackers from spreading across the estate.<br>Lose when 7 or more devices are breached.<br><br>MFA is only valid on servers and PCs.<br>Lockout works across all devices.<br>Isolation works on all devices except the switch.<br>The switch may be attacked simultaneously with another random device.</div></div><div class="event-log"><div class="log-title">EVENT LOG</div><div class="log-lines" id="logLines"></div></div></section>
   </main>
 
-  <div class="breach-overlay" id="breachOverlay">
-    <div class="breach-warning">NETWORK COMPROMISED</div>
-    <div class="giant-ransom-skull" id="giantRansomSkull">
-      <div class="skull-row"></div><div class="skull-row"></div><div class="skull-row"></div><div class="skull-row"></div>
-      <div class="skull-row"></div><div class="skull-row"></div><div class="skull-row"></div><div class="skull-row"></div>
-      <div class="skull-row"></div><div class="skull-row"></div><div class="skull-row"></div><div class="skull-row"></div>
-    </div>
-    <div class="breach-subtext" id="breachSubtext">MORE THAN HALF THE ESTATE WAS BREACHED</div>
-    <button class="overlay-btn" onclick="location.reload()">PLAY AGAIN</button>
-  </div>
+  <div class="breach-overlay" id="breachOverlay"><div class="breach-warning">NETWORK COMPROMISED</div><div class="giant-ransom-skull" id="giantRansomSkull"><div class="skull-row"></div><div class="skull-row"></div><div class="skull-row"></div><div class="skull-row"></div><div class="skull-row"></div><div class="skull-row"></div><div class="skull-row"></div><div class="skull-row"></div><div class="skull-row"></div><div class="skull-row"></div><div class="skull-row"></div><div class="skull-row"></div></div><div class="breach-subtext" id="breachSubtext">MORE THAN HALF THE ESTATE WAS BREACHED</div></div>
 
-  <div class="victory-overlay" id="victoryOverlay">
-    <div class="victory-topline">FIREWALL CONTAINMENT ACTIVE</div>
-    <div class="victory-wall-wrap"><div class="victory-wall victory-wall-left"></div><div class="victory-core">🛡</div><div class="victory-wall victory-wall-right"></div></div>
-    <div class="victory-title">ATTACK LOCKED OUT</div>
-    <div class="victory-status">MISSION PASSED</div>
-    <div class="victory-score" id="victoryScore">ESTATE SECURED</div>
-    <div class="victory-time" id="victoryTime">TIME 00:00</div>
-    <button class="overlay-btn" onclick="location.reload()">PLAY AGAIN</button>
-  </div>
+  <div class="victory-overlay" id="victoryOverlay"><div class="victory-topline">FIREWALL CONTAINMENT ACTIVE</div><div class="victory-wall-wrap"><div class="victory-wall victory-wall-left"></div><div class="victory-core">🛡</div><div class="victory-wall victory-wall-right"></div></div><div class="victory-title">ATTACK LOCKED OUT</div><div class="victory-status">MISSION PASSED</div><div class="victory-score" id="victoryScore">ESTATE SECURED</div><div class="victory-time" id="victoryTime">TIME 00:00</div></div>
 
   <script src="script.js"></script>
   <script>
-    var sccyberAttemptSent = false;
-    function buildSccyberBruteAttempt(){
-      var breached = devices.filter(function(d){ return d.state === 'breached'; }).length;
-      var safe = TOTAL_DEVICES - breached;
-      var elapsed = GAME_DURATION - timeRemaining;
-      var scoreValue = Math.max(0, (safe * 350) + (gameOver && breached < LOSS_THRESHOLD ? 800 : 0) + Math.max(0, timeRemaining * 5));
-      return {
-        type: 'SCCYBER_GAME_ATTEMPT',
-        game: 'brute-force-lockdown',
-        score: Math.round(scoreValue),
-        totalQuestions: TOTAL_DEVICES,
-        correct: safe,
-        wrong: breached,
-        answered: TOTAL_DEVICES,
-        accuracy: Math.round((safe / TOTAL_DEVICES) * 100),
-        durationSeconds: elapsed,
-        completed: gameOver,
-        passed: gameOver && breached < LOSS_THRESHOLD,
-        createdAt: new Date().toISOString()
-      };
-    }
-    function sendSccyberBruteAttempt(){
-      if(sccyberAttemptSent) return;
-      sccyberAttemptSent = true;
-      window.parent.postMessage(buildSccyberBruteAttempt(), '*');
-    }
-    var oldWinGame = winGame;
-    winGame = function(){ oldWinGame(); setTimeout(sendSccyberBruteAttempt, 900); };
-    var oldLoseGame = loseGame;
-    loseGame = function(){ oldLoseGame(); setTimeout(sendSccyberBruteAttempt, 900); };
-    window.addEventListener('message', function(event){
-      var data = event.data || {};
-      if(data.type === 'SCCYBER_REQUEST_ATTEMPT') sendSccyberBruteAttempt();
-    });
+    var sccyberAttemptSent=false;
+    function buildSccyberBruteAttempt(){var breached=devices.filter(function(d){return d.state==='breached';}).length;var safe=TOTAL_DEVICES-breached;var elapsed=GAME_DURATION-timeRemaining;var scoreValue=Math.max(0,(safe*350)+(gameOver&&breached<LOSS_THRESHOLD?800:0)+Math.max(0,timeRemaining*5));return{type:'SCCYBER_GAME_ATTEMPT',game:'brute-force-lockdown',score:Math.round(scoreValue),totalQuestions:TOTAL_DEVICES,correct:safe,wrong:breached,answered:TOTAL_DEVICES,accuracy:Math.round((safe/TOTAL_DEVICES)*100),durationSeconds:elapsed,completed:gameOver,passed:gameOver&&breached<LOSS_THRESHOLD,createdAt:new Date().toISOString()};}
+    function sendSccyberBruteAttempt(){if(sccyberAttemptSent)return;sccyberAttemptSent=true;window.parent.postMessage(buildSccyberBruteAttempt(),'*');}
+    var oldWinGame=winGame;winGame=function(){oldWinGame();setTimeout(sendSccyberBruteAttempt,900);};
+    var oldLoseGame=loseGame;loseGame=function(){oldLoseGame();setTimeout(sendSccyberBruteAttempt,900);};
+    window.addEventListener('message',function(event){var data=event.data||{};if(data.type==='SCCYBER_REQUEST_ATTEMPT')sendSccyberBruteAttempt();});
   </script>
   <script src="balance.js"></script>
 </body>
