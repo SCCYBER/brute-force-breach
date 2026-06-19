@@ -1,0 +1,41 @@
+name: Wire premium guard
+
+on:
+  push:
+    paths:
+      - .github/workflows/patch-premium-guard.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Insert premium guard scripts
+        run: |
+          if grep -q "premium-access-guard.js" index.html; then
+            echo "Guard already wired"
+            exit 0
+          fi
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text()
+          target = '  <script src="script.js"></script>'
+          insert = '''  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://sccyber.github.io/Immersive-Training-Package/supabase-config.js"></script>
+  <script src="premium-access-guard.js"></script>
+  <script src="script.js"></script>'''
+          if target not in s:
+            raise SystemExit('target script tag not found')
+          p.write_text(s.replace(target, insert, 1))
+          PY
+      - name: Commit patch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Wire premium guard into Brute Force" || exit 0
+          git push
