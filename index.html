@@ -28,7 +28,7 @@
     const frame = document.getElementById('gameFrame');
 
     function locked(msg){
-      shell.innerHTML='<section class="intro-card" style="max-width:760px;"><img src="logo.png" alt="SCCYBER logo" class="logo"><div class="intro-title">PREMIUM ACCESS REQUIRED</div><div class="intro-text">'+msg+'<br><br>Please return to the SCCYBER Training Portal and log in with an active premium account.</div><a class="action-btn primary-btn" style="display:inline-block;text-decoration:none;margin-top:18px;" href="https://sccyber.github.io/Immersive-Training-Package/">RETURN TO PORTAL</a></section>';
+      shell.innerHTML='<section class="intro-card" style="max-width:760px;"><img src="logo.png" alt="SCCYBER logo" class="logo"><div class="intro-title">PORTAL ACCESS REQUIRED</div><div class="intro-text">'+msg+'<br><br>Please return to the SCCYBER Training Portal and launch this module from your dashboard.</div><a class="action-btn primary-btn" style="display:inline-block;text-decoration:none;margin-top:18px;" href="https://sccyber.github.io/Immersive-Training-Package/">RETURN TO PORTAL</a></section>';
     }
 
     window.addEventListener('message', function(event){
@@ -48,6 +48,11 @@
 
     async function run(){
       try{
+        if (window.top === window.self) {
+          locked('Direct access is not allowed.');
+          return;
+        }
+
         const c=window.supabase.createClient(window.SCCYBER_SUPABASE_URL,window.SCCYBER_SUPABASE_ANON_KEY);
         const s=await c.auth.getSession();
         const user=s&&s.data&&s.data.session&&s.data.session.user;
