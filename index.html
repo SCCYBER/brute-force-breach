@@ -26,8 +26,39 @@
   <script>
     const shell = document.getElementById('lockedShell');
     const frame = document.getElementById('gameFrame');
-    function locked(msg){shell.innerHTML='<section class="intro-card" style="max-width:760px;"><img src="logo.png" alt="SCCYBER logo" class="logo"><div class="intro-title">PREMIUM ACCESS REQUIRED</div><div class="intro-text">'+msg+'<br><br>Please return to the SCCYBER Training Portal and log in with an active premium account.</div><a class="action-btn primary-btn" style="display:inline-block;text-decoration:none;margin-top:18px;" href="https://sccyber.github.io/Immersive-Training-Package/">RETURN TO PORTAL</a></section>';}
-    async function run(){try{const c=window.supabase.createClient(window.SCCYBER_SUPABASE_URL,window.SCCYBER_SUPABASE_ANON_KEY);const s=await c.auth.getSession();const user=s&&s.data&&s.data.session&&s.data.session.user;if(!user){locked('No active portal session was found.');return;}const p=await c.from('profiles').select('premium_enabled,is_admin').eq('id',user.id).single();if(p.error||!p.data){locked('Your account could not be verified.');return;}if(p.data.is_admin===true||p.data.premium_enabled===true){shell.style.display='none';frame.style.display='block';frame.src='bf-core-917a.html';return;}locked('Premium access is not active for this account.');}catch(e){locked('Secure access check failed.');}}
+
+    function locked(msg){
+      shell.innerHTML='<section class="intro-card" style="max-width:760px;"><img src="logo.png" alt="SCCYBER logo" class="logo"><div class="intro-title">PREMIUM ACCESS REQUIRED</div><div class="intro-text">'+msg+'<br><br>Please return to the SCCYBER Training Portal and log in with an active premium account.</div><a class="action-btn primary-btn" style="display:inline-block;text-decoration:none;margin-top:18px;" href="https://sccyber.github.io/Immersive-Training-Package/">RETURN TO PORTAL</a></section>';
+    }
+
+    window.addEventListener('message', function(event){
+      const data = event.data || {};
+
+      if (data.type === 'SCCYBER_GAME_ATTEMPT') {
+        window.parent.postMessage(data, '*');
+        return;
+      }
+
+      if (data.type === 'SCCYBER_REQUEST_ATTEMPT') {
+        try {
+          frame.contentWindow.postMessage(data, '*');
+        } catch(e) {}
+      }
+    });
+
+    async function run(){
+      try{
+        const c=window.supabase.createClient(window.SCCYBER_SUPABASE_URL,window.SCCYBER_SUPABASE_ANON_KEY);
+        const s=await c.auth.getSession();
+        const user=s&&s.data&&s.data.session&&s.data.session.user;
+        if(!user){locked('No active portal session was found.');return;}
+        const p=await c.from('profiles').select('premium_enabled,is_admin').eq('id',user.id).single();
+        if(p.error||!p.data){locked('Your account could not be verified.');return;}
+        if(p.data.is_admin===true||p.data.premium_enabled===true){shell.style.display='none';frame.style.display='block';frame.src='bf-core-917a.html';return;}
+        locked('Premium access is not active for this account.');
+      }catch(e){locked('Secure access check failed.');}
+    }
+
     run();
   </script>
 </body>
