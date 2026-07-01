@@ -59,7 +59,7 @@
         if(!user){locked('No active portal session was found.');return;}
         const p=await c.from('profiles').select('premium_enabled,is_admin').eq('id',user.id).single();
         if(p.error||!p.data){locked('Your account could not be verified.');return;}
-        if(p.data.is_admin===true||p.data.premium_enabled===true){shell.style.display='none';frame.style.display='block';frame.src='bf-core-917a.html';return;}
+        if(p.data.is_admin===true||p.data.premium_enabled===true){shell.style.display='none';frame.style.display='block';frame.src='bf-core-917a.html?portal=1';return;}
         locked('Premium access is not active for this account.');
       }catch(e){locked('Secure access check failed.');}
     }
